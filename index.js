@@ -1,7 +1,20 @@
 const puppeteer = require('puppeteer');
+const prompt = require('prompt-sync')({ sigint: true });
+
+function getUserInput(){
+  const email = prompt('Type your e-mail: ');
+  const pass = prompt.hide('Type your password: ');
+
+  const userInput = [email, pass];
+
+  return userInput;
+}
 
 (async () => {
+  const [email, pass] = getUserInput();
+  
   const browser = await puppeteer.launch();
+
   // Enter linkedIn website
   
   const page = await browser.newPage();
@@ -12,16 +25,16 @@ const puppeteer = require('puppeteer');
   await page.click('a.nav__button-secondary');
   
   await page.focus('#username');
-  await page.keyboard.type('your-email-here');
+  await page.keyboard.type(email);
 
   await page.focus('#password');
-  await page.keyboard.type('your-password-here');
+  await page.keyboard.type(pass);
 
   const form = await page.$('form.login__form');
   await form.evaluate(form => form.submit());
 
   await page.waitForNavigation({ waitUntil: 'load' });
-  
+
   // Go to invites page
 
   await page.goto(`https://www.linkedin.com/mynetwork/invitation-manager/`);
@@ -37,6 +50,7 @@ const puppeteer = require('puppeteer');
     }
 
     await browser.close();
-  }, 10000);
 
+    return;
+  }, 10000);
 })();
